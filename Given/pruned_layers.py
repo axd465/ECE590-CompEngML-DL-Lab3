@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -17,12 +16,13 @@ class PruneLinear(nn.Module):
         m = self.in_features
         n = self.out_features
         self.sparsity = 1.0
-        # Initialization
+        # Initailization
         self.linear.weight.data.normal_(0, math.sqrt(2. / (m+n)))
 
     def forward(self, x):
         out = self.linear(x)
         return out
+        pass
 
     def prune_by_percentage(self, q=5.0):
         """
@@ -37,10 +37,7 @@ class PruneLinear(nn.Module):
         with pruned connections.
         --------------Your Code---------------------
         """
-        weight = self.linear.weight.data.cpu().numpy()
-        self.mask = abs(weight) >= np.percentile(abs(weight), q)
-        self.linear.weight.data = torch.from_numpy(weight*self.mask).float().to(device)
-        self.sparsity = 1 - np.sum(self.mask)/self.mask.size
+        pass
 
 
     def prune_by_std(self, s=0.25):
@@ -58,10 +55,7 @@ class PruneLinear(nn.Module):
         with pruned connections.
         --------------Your Code---------------------
         """
-        weight = self.linear.weight.data.cpu().numpy()
-        self.mask = abs(weight) >= np.std(weight)*s
-        self.linear.weight.data = torch.from_numpy(weight*self.mask).float().to(device)
-        self.sparsity = 1 - np.sum(self.mask)/self.mask.size
+        pass
 
 class PrunedConv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0, bias=False):
@@ -87,9 +81,10 @@ class PrunedConv(nn.Module):
 
     def prune_by_percentage(self, q=5.0):
         """
-        Pruning the weight paramters by threshold.
-        :param q: pruning percentile. 'q' percent of the least 
-        significant weight parameters will be pruned.
+        Pruning by a factor of the standard deviation value.
+        :param s: (scalar) factor of the standard deviation value. 
+        Weight magnitude below np.std(weight)*std
+        will be pruned.
         """
         
         """
@@ -99,16 +94,12 @@ class PrunedConv(nn.Module):
         with pruned connections.
         --------------Your Code---------------------
         """
-        weight = self.conv.weight.data.cpu().numpy()
-        self.mask = abs(weight) >= np.percentile(abs(weight), q)
-        self.conv.weight.data = torch.from_numpy(weight*self.mask).float().to(device)
-        self.sparsity = 1 - np.sum(self.mask)/self.mask.size
         
 
     def prune_by_std(self, s=0.25):
         """
         Pruning by a factor of the standard deviation value.
-        :param std: (scalar) factor of the standard deviation value. 
+        :param s: (scalar) factor of the standard deviation value. 
         Weight magnitude below np.std(weight)*std
         will be pruned.
         """
@@ -120,8 +111,5 @@ class PrunedConv(nn.Module):
         with pruned connections.
         --------------Your Code---------------------
         """
-        weight = self.conv.weight.data.cpu().numpy()
-        self.mask = abs(weight) >= np.std(weight)*s
-        self.conv.weight.data = torch.from_numpy(weight*self.mask).float().to(device)
-        self.sparsity = 1 - np.sum(self.mask)/self.mask.size
+        pass
 

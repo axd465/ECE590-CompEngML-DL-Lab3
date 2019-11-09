@@ -2,74 +2,8 @@ import numpy as np
 from sklearn.cluster import KMeans
 from pruned_layers import *
 import torch.nn as nn
-from collections import Counter
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-class HuffmanNode():
-    def __init__(self, key = '<!$>_ANTHONY_<$!>', freq = 0, right = None, left = None, leaf = False):
-        if leaf:
-            self.key = key
-            self.freq = freq
-            self.right = None
-            self.left = None
-            self.leaf = True
-            self.encode = ''
-        else:
-            self.key = key
-            self.freq = right.freq + left.freq
-            self.right = right
-            self.left = left
-            self.leaf = False
-            right.add_encode('1')
-            left.add_encode('0')
-        return
-    def add_encode(self, addition):
-        if self.leaf == False:
-            if self.left == None:
-                self.right.add_encode(addition)
-            elif self.right == None:
-                self.left.add_encode(addition)
-            else:
-                self.right.add_encode(addition)
-                self.left.add_encode(addition)
-            if self.right == None and self.left == None:
-                print('Error: Recursively iterating on a leaf')
-        else:
-            self.encode = addition + self.encode
-        return
-
-def convert_freq_dict_to_encodings(freq):
-    original_freq = freq.copy() # Just in Case I want to check something later
-    
-    leaf_list = []
-    for centroid, frequency in freq.items():
-        leaf_list.append(HuffmanNode(key = centroid,
-                                     freq = frequency,
-                                     leaf = True))
-    tree = []
-    tree.extend(leaf_list)
-    
-    MaxIter = 500
-    iter = 0
-    not_root = True
-    
-    # Forming Huffman Tree and Setting Encoding
-    while not_root and iter < MaxIter:
-        least_freq_item = tree.pop(-1)
-        second_least_freq_item = tree.pop(-1)
-        tree.append(HuffmanNode(key = 'Branch ' + str(iter),
-                                right = second_least_freq_item,
-                                left = least_freq_item))
-        iter+=1
-        not_root = len(tree) > 1
-        if not_root:
-            if tree[-1].freq > tree[-2].freq:
-                tree = sorted(tree, key=lambda node: node.freq, reverse = True)
-    encodings = {}
-    for leaf in leaf_list:
-        encodings[leaf.key] = leaf.encode
-    return encodings
 
 
 def _huffman_coding_per_layer(weight, centers):
@@ -89,19 +23,11 @@ def _huffman_coding_per_layer(weight, centers):
             'encodings' and 'frequency' does not need to be ordered in any way.
     """
     """
-    Generate Huffman Coding and Frequency Map according to incoming weights and centers (KMeans centroids).
+    Generate Huffman Coding and Frequency Map according to incoming weights and centers (KMeans centriods).
     --------------Your Code---------------------
     """
-    non_zero_weights = list(map(str, weight[np.nonzero(weight)]))# creates string array of non-zero weight values
-    ordered = Counter(non_zero_weights)
-    # creates dictionary of centroids in decending order of frequency
-    frequency = {}
-    for item in ordered.most_common(len(ordered)):
-        key = item[0]
-        value = item[1]
-        frequency[key] = value
-    encodings = convert_freq_dict_to_encodings(frequency) # converts freq dict to centroid encodings
     return encodings, frequency
+
 
 def compute_average_bits(encodings, frequency):
     """

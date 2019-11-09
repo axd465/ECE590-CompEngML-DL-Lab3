@@ -159,12 +159,8 @@ def finetune_after_prune(net, epochs=100, batch_size=128, lr=0.01, reg=5e-4):
             """
             Zero the gradients of the pruned variables.
             -----------------------Your Code-------------------------
-            """     
-            for group in net.parameters():
-                 group.grad.data[group.data == 0] = 0
-            '''
-            ---------------------------------------------------------
-            '''
+            """
+
             optimizer.step()
             train_loss += loss.item()
             _, predicted = outputs.max(1)
